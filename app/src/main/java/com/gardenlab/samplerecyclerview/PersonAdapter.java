@@ -12,17 +12,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder>{
+public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder> implements OnPersonItemClickListener{
     final String TAG = "Adapter";
     ArrayList<Person> items = new ArrayList<>();
+    OnPersonItemClickListener listener;
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         TextView textView2;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, final OnPersonItemClickListener listener) {
             super(itemView);
             textView = itemView.findViewById(R.id.textView);
             textView2 = itemView.findViewById(R.id.textView2);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if(listener != null) {
+                        listener.onItemClick(ViewHolder.this, v, position);
+                    }
+                }
+            });
         }
 
         public void setItem(Person item) {
@@ -37,7 +49,18 @@ public class PersonAdapter extends RecyclerView.Adapter<PersonAdapter.ViewHolder
         Log.d(TAG, "onCreateViewHolder: called");
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View itemView = inflater.inflate(R.layout.person_item, parent,false);
-        return new ViewHolder(itemView);
+        return new ViewHolder(itemView,this);
+    }
+
+    public void setOnItemClickListener(OnPersonItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void onItemClick(ViewHolder holder, View view, int position) {
+        if(listener != null) {
+            listener.onItemClick(holder,view,position);
+        }
     }
 
     @Override
